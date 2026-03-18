@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Hindi Dubber</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: white;
+        }
+        button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 4px solid #333;
+            border-top: 4px solid #ff0000;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status { display: none; color: #aaa; font-size: 14px; margin-top: 10px; }
+        .results a {
+            display: block;
+            margin-top: 15px;
+            color: #ff0000;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>YouTube to Hindi</h2>
+    <p style="font-size: 14px; color: #ccc;">Link daliye aur magic dekhiye!</p>
+    
+    <input type="text" id="urlInput" placeholder="YouTube Link (https://...)">
+    <button id="convertBtn" onclick="processVideo()">Hindi Banao</button>
+
+    <div class="loader" id="loader"></div>
+    <div class="status" id="statusText">Factory kaam kar rahi hai, thoda intezaar karein...</div>
+
+    <div class="results" id="results" style="display:none;">
+        <h3>Kaam Ho Gaya! 🎉</h3>
+        <a id="downloadVideo" href="#">🎥 Hindi Video Download Karein</a>
+        <a id="downloadAudio" href="#">🎵 Sirf Hindi Awaaz Download Karein</a>
+    </div>
+</div>
+
+<script>
+    async function processVideo() {
+        const url = document.getElementById('urlInput').value;
+        if (!url) { alert("Pehle link toh daliye!"); return; }
+
+        document.getElementById('convertBtn').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('statusText').style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+
+        try {
+            const response = await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('downloadVideo').href = data.video_url;
+                document.getElementById('downloadAudio').href = data.audio_url;
+                document.getElementById('results').style.display = 'block';
+            } else {
+                alert("Koi dikkat aayi: " + data.detail);
+            }
+        } catch (error) {
+            alert("Internet ya Server mein koi problem hai.");
+        } finally {
+            document.getElementById('convertBtn').style.display = 'block';
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('statusText').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
